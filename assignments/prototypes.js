@@ -16,12 +16,33 @@
   * destroy() // prototype method that returns: `${this.name} was removed from the game.`
 */
 
+function GameObject(char) {
+  this.createdAt = char.createdAt;
+  this.name = char.name;
+  this.dimensions = char.dimensions;
+}
+
+GameObject.prototype.destroy = function() {
+  return `${this.name} was removed from the game.`;
+}
+
 /*
   === CharacterStats ===
   * healthPoints
   * takeDamage() // prototype method -> returns the string '<object name> took damage.'
   * should inherit destroy() from GameObject's prototype
 */
+
+function CharacterStats(race) {
+  GameObject.call(this, race);
+  this.healthPoints = race.healthPoints;
+}
+
+CharacterStats.prototype = Object.create(GameObject.prototype);
+
+CharacterStats.prototype.takeDamage = function() {
+  return `${this.name} took damage.`;
+}
 
 /*
   === Humanoid (Having an appearance or character resembling that of a human.) ===
@@ -32,16 +53,83 @@
   * should inherit destroy() from GameObject through CharacterStats
   * should inherit takeDamage() from CharacterStats
 */
- 
+
+function Humanoid(human) {
+  CharacterStats.call(this, human);
+  this.team = human.team;
+  this.weapons = human.weapons;
+  this.language = human.language;
+}
+
+Humanoid.prototype = Object.create(CharacterStats.prototype);
+
+Humanoid.prototype.greet = function() {
+  return `${this.name} offers a greeting in ${this.language}.`;
+}
+
 /*
-  * Inheritance chain: GameObject -> CharacterStats -> Humanoid
+  === Hero ===
+  * renown
+  * purity
+  * diplomacy
+  * heroStrike() // prototype method -> deals 10 damage to other player if Villain
+*/
+
+function Hero(player) {
+  Humanoid.call(this, player);
+  this.alignment = player.alignment;
+  this.renown = player.renown;
+  this.purity = player.purity;
+  this.diplomacy = player.diplomacy;
+}
+
+Hero.prototype = Object.create(Humanoid.prototype);
+
+Hero.prototype.heroStrike = function(player) {
+  if (player.alignment === 'Villain') {
+    player.healthPoints = player.healthPoints - 10;
+    if (player.healthPoints <= 0) {
+      return player.destroy();
+    }
+  } else return "You cannot attack other heroes!";
+}
+
+/*
+  === Villain ===
+  * notoriety
+  * corruption
+  * persuasion
+  * crushHope() // prototype method -> deals 10 damage to other player if alignment is Hero
+*/
+
+function Villain(player) {
+  Humanoid.call(this, player);
+  this.alignment = player.alignment;
+  this.notoriety = player.notoriety;
+  this.corruption = player.corruption;
+  this.persuasion = player.persuasion;
+}
+
+Villain.prototype = Object.create(Humanoid.prototype);
+
+Villain.prototype.crushHope = function(player) {
+  if (player.alignment === 'Hero') {
+    player.healthPoints = player.healthPoints - 10;
+    if (player.healthPoints <= 0) {
+      return player.destroy();
+    }
+  }
+}
+
+/*
+  * Inheritance chain: GameObject -> CharacterStats -> Humanoid -> Hero/Villain
   * Instances of Humanoid should have all of the same properties as CharacterStats and GameObject.
   * Instances of CharacterStats should have all of the same properties as GameObject.
 */
 
 // Test you work by un-commenting these 3 objects and the list of console logs below:
 
-/*
+
   const mage = new Humanoid({
     createdAt: new Date(),
     dimensions: {
@@ -92,6 +180,24 @@
     language: 'Elvish',
   });
 
+  let valla = new Hero({
+    healthPoints: 20,
+    name: 'Valla',
+    alignment: 'Hero',
+    renown: 90,
+    purity: 80,
+    diplomacy: 50,
+  });
+
+  let mephisto = new Villain({
+    healthPoints: 25,
+    name: 'Mephisto',
+    alignment: 'Villain',
+    notoriety: 100,
+    corruption: 100,
+    persuasion: 80,
+  });
+
   console.log(mage.createdAt); // Today's date
   console.log(archer.dimensions); // { length: 1, width: 2, height: 4 }
   console.log(swordsman.healthPoints); // 15
@@ -102,7 +208,17 @@
   console.log(archer.greet()); // Lilith offers a greeting in Elvish.
   console.log(mage.takeDamage()); // Bruce took damage.
   console.log(swordsman.destroy()); // Sir Mustachio was removed from the game.
-*/
+
+  mephisto.crushHope(valla);
+  console.log(mephisto.crushHope(valla));
+  console.log(valla.healthPoints);
+
+  console.log(valla.heroStrike(valla));
+
+  valla.heroStrike(mephisto);
+  valla.heroStrike(mephisto);
+  console.log(valla.heroStrike(mephisto));
+  console.log(mephisto.healthPoints);
 
   // Stretch task: 
   // * Create Villain and Hero constructor functions that inherit from the Humanoid constructor function.  

@@ -35,13 +35,13 @@ me.sayName();
 
 // Principle 3
 
-let Hero = function(universe, name, role) {
+let HeroOfTheStorm = function(universe, name, role) {
     this.universe = universe;
     this.name = name;
     this.role = role;
 };
 
-let malthael = new Hero('Diablo', 'Malthael', 'bruiser')
+let malthael = new HeroOfTheStorm('Diablo', 'Malthael', 'bruiser')
 
 console.log(malthael);
 
